@@ -1,3 +1,270 @@
 
 
 * Text Normalization Challenge - English Language [Kaggle]
+
+  [[file:text_norm_challenge.ipynb][Jupyter Notebook]]
+
+** Data analysis with pandas
+
+   #+BEGIN_SRC python
+
+     import pandas as pd
+     import matplotlib
+     from collections import Counter
+
+     matplotlib.use('Agg')
+
+     import matplotlib.pyplot as plt
+
+     def make_hist (num_values, name):
+         plt.clf()
+
+         plt.figure(figsize=(20, 20))
+         plt.bar(range(len(num_values)), list(num_values.values()), align='center')
+         plt.xticks(range(len(num_values)), list(num_values.keys()))
+
+         plt.savefig(name + '.png')
+
+     def main():
+         print ("Hello from data analysis main")
+
+         df = pd.read_csv('/home/team7/Data/project/en_train.csv')
+
+         columns = df['class'].value_counts()
+
+
+         num_values = {}
+         percentage_modif = {}
+
+         for column in columns.keys():
+             df_aux = df.loc[df['class'] == column]
+             df_dif = df_aux.loc[df_aux['before'] != df_aux['after']]
+
+             num_values[column] = len(df_aux)
+             percentage_modif[column] = len (df_dif) / len(df_aux)
+
+
+         make_hist(num_values, 'hist')
+         make_hist(percentage_modif, 'hist_modif')
+
+
+     def main4():
+         print("Hello from data analysis main")
+
+         df = pd.read_csv('/home/team7/Data/project/en_train.csv')
+
+         columns = df['class'].value_counts()
+
+         num_values = {}
+         percentage_modif = {}
+
+         for column in columns.keys():
+             df_aux = df.loc[df['class'] == column]
+             df_dif = df_aux.loc[df_aux['before'] != df_aux['after']]
+
+             num_values[column] = len(df_aux)
+             percentage_modif[column] = len(df_dif) / len(df_aux)
+
+         make_hist(num_values, 'hist')
+         make_hist(percentage_modif, 'hist_modif')
+
+     def main2 ():
+         print ("Hello from data analysis main2")
+
+         df = pd.read_csv('/home/team7/Data/project/en_train.csv')
+
+         df = df.loc[df['class'] == 'VERBATIM']
+
+         print (df.head())
+
+         import sys
+         sys.exit()
+
+         df['before'] = df ['before'].apply (str)
+         df['beforeCount'] = df ['before'].apply (lambda x: len (x.split(' ')))
+
+         df['after'] = df['after'].apply(str)
+         df['afterCount'] = df ['after'].apply (lambda x: len (x.split(' ')))
+
+         columns = df['beforeCount'].value_counts()
+
+         print (df.loc[df['beforeCount'] == 2].head())
+
+         columns.plot.bar (figsize = (20, 20))
+
+         plt.savefig ("hist_lenPLAIN_DST.png")
+     def main3():
+         dictionary = {1: 8957502, 2: 134575, 3: 177305, 4: 68841, 5: 30799, 6: 28000, 7: 23914, 8: 9018, 9: 1567, 10: 921, 11: 1100, 12: 544, 13: 1864, 14: 487, 15: 323, 16: 338, 17: 816, 18: 241, 19: 224, 20: 175, 21: 92, 22: 76, 23: 85, 24: 64, 25: 59, 26: 31, 27: 28, 28: 22, 29: 17, 30: 15, 31: 15, 32: 21, 33: 19, 34: 12, 35: 12, 36: 10, 37: 5, 38: 6, 39: 7, 40: 18, 41: 7, 42: 12, 43: 6, 44: 4, 45: 4, 46: 16, 47: 7, 48: 15, 49: 6, 50: 8, 51: 6, 52: 11, 53: 12, 54: 8, 55: 8, 56: 9, 57: 7, 58: 7, 59: 7, 60: 12, 61: 12, 62: 3, 63: 7, 64: 9, 65: 10, 66: 10, 67: 7, 68: 14, 69: 5, 70: 7, 71: 8, 72: 9, 73: 10, 74: 5, 75: 4, 76: 8, 77: 2, 78: 3, 79: 6, 80: 6, 81: 7, 82: 10, 83: 5, 84: 1, 85: 5, 86: 10, 87: 4, 88: 6, 89: 7, 90: 11, 91: 3, 92: 3, 93: 7, 94: 7, 95: 3, 96: 4, 97: 4, 98: 6, 99: 1, 100: 3, 101: 4, 102: 4, 103: 7, 104: 5, 105: 4, 106: 4, 107: 6, 108: 5, 109: 1, 110: 4, 111: 5, 112: 4, 113: 2, 114: 3, 115: 2, 116: 3, 117: 2, 118: 4, 119: 3, 120: 5, 121: 4, 122: 6, 123: 3, 124: 2, 125: 3, 126: 3, 127: 2, 128: 6, 129: 4, 130: 4, 131: 3, 132: 3, 133: 2, 134: 1, 137: 3, 138: 1, 139: 1, 652: 1, 141: 1, 142: 2, 143: 1, 145: 1, 146: 2, 147: 4, 150: 4, 151: 1, 152: 1, 153: 1, 154: 2, 155: 2, 156: 3, 157: 1, 158: 1, 159: 1, 160: 3, 673: 1, 162: 1, 163: 1, 164: 3, 165: 3, 167: 2, 168: 1, 169: 1, 170: 2, 171: 3, 173: 1, 174: 1, 689: 1, 180: 1, 182: 1, 183: 1, 186: 2, 187: 1, 190: 1, 196: 1, 197: 1, 199: 2, 201: 3, 202: 1, 206: 1, 207: 1, 221: 1, 223: 1, 229: 1, 230: 1, 241: 2, 252: 1, 766: 1, 261: 1, 284: 1, 291: 1, 303: 1, 1846: 1, 311: 1, 315: 1, 320: 1, 343: 1, 536: 1, 360: 1, 363: 1, 409: 1, 161: 1, 177: 1}
+
+         make_hist(dictionary, "numWordsDST")
+
+     # Running the analysis 
+     main2()
+   
+   #+END_SRC
+
+** Running
+   
+*** Data Preprocessing and Tokenization
+
+**** From words to sentences
+
+    #+BEGIN_SRC python
+
+      print ("Hello from data preprocess")
+
+      import csv
+
+      db_file = '/home/team7/Data/project/en_train.csv'                    # Here you should put the path to the file you want to change
+
+      outputFile = open ("outputTrainDST", 'a')
+      with open (db_file, 'r') as f:
+          reader = csv.reader(f)
+
+          counter = 0
+          pastPhrase = 0
+          reader.__next__()
+          phraseString = ''
+          for row in reader:
+              if pastPhrase == int (row[0]):
+                  #We are still on the current phrase
+                  phraseString += row[4] + ' '
+              else:
+                  print (phraseString, file = outputFile)
+                  phraseString = ""
+                  phraseString += row[4] + ' '
+
+                  counter += 1
+                  if counter == 20000:
+                      break
+
+              pastPhrase = int (row[0])
+
+
+          print (counter)
+
+    #+END_SRC
+
+
+**** Phrases tokenization
+    
+
+       #+BEGIN_SRC bash       
+
+       for l in en de; do for f in data/kaggle_norm_competition/*.$l; do if [[ "$f" != *"test"* ]]; then sed -i "$ d" $f; fi;  done; done
+       for l in en de; do for f in data/kaggle_norm_competition/*.$l; do perl tokenizer.perl -a -no-escape -l $l -q  < $f > $f.atok; done; done
+
+       python preprocess.py -train_src data/kaggle_norm_competition/linesTrainSRC -train_tgt data/kaggle_norm_competition/linesTrainDST -valid_src data/kaggle_norm_competition/linesValSRC -valid_tgt data/kaggle_norm_competition/linesValDST -save_data data/kaggle_norm_competition/train_kaggle2transformer.atok.low.pt
+   
+   #+END_SRC
+
+*** Training
+
+           #+BEGIN_SRC bash
+
+   python train.py -data data/kaggle_norm_competition/train_kaggle2transformer.atok.low.pt -save_model trained -save_mode best -proj_share_weight
+   
+   #+END_SRC
+
+*** Testing
+
+           #+BEGIN_SRC bash
+	   
+   python translate.py -model trained.chkpt -vocab data/kaggle_norm_competition/train_kaggle2transformer.atok.low.pt -src data/kaggle_norm_competition/linesTest
+   
+   #+END_SRC
+    
+** The code
+
+*** Word classification trial
+
+    The new transformer model will be:
+
+    #+BEGIN_SRC python
+
+    class MyTransformer(nn.Module):                                                                                                                                                                                                               
+    ''' A sequence to sequence model with attention mechanism. '''                                                                                                                                                                            
+                                                                                                                                                                                                                                              
+    def __init__(                                                                                                                                                                                                                             
+            self, n_src_vocab, n_tgt_vocab, n_cls_vocab, n_max_seq, n_layers=6, n_head=8,                                                                                                                                                     
+            d_word_vec=512, d_model=512, d_inner_hid=1024, d_k=64, d_v=64,                                                                                                                                                                    
+            dropout=0.1, proj_share_weight=True, embs_share_weight=True):                                                                                                                                                                     
+                                                                                                                                                                                                                                              
+        super(MyTransformer, self).__init__()                                                                                                                                                                                                 
+        self.encoder = Encoder(                                                                                                                                                                                                               
+            n_src_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,                                                                                                                                                                         
+            d_word_vec=d_word_vec, d_model=d_model,                                                                                                                                                                                           
+            d_inner_hid=d_inner_hid, dropout=dropout)                                                                                                                                                                                         
+        self.decoder = Decoder(                                                                                                                                                                                                               
+            n_tgt_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,                                                                                                                                                                         
+            d_word_vec=d_word_vec, d_model=d_model,                                                                                                                                                                                           
+            d_inner_hid=d_inner_hid, dropout=dropout)                                                                                                                                                                                         
+        self.tgt_word_proj = Linear(d_model, n_tgt_vocab, bias=False)                                                                                                                                                                         
+        self.dropout = nn.Dropout(dropout)                                                                                                                                                                                                    
+                                                                                                                                                                                                                                              
+        self.decoder_cls = Decoder(                                                                                                                                                                                                           
+            n_cls_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,                                                                                                                                                                         
+            d_word_vec=d_word_vec, d_model=d_model,                                                                                                                                                                                           
+            d_inner_hid=d_inner_hid, dropout=dropout)                                                                                                                                                                                         
+        self.cls_word_proj = Linear(d_model, n_cls_vocab, bias=False)                                                                                                                                                                         
+                                                                                                                                                                                                                                              
+        assert d_model == d_word_vec, \                                                                                                                                                                                                       
+        'To facilitate the residual connections, \                                                                                                                                                                                            
+         the dimensions of all module output shall be the same.'                                                                                                                                                                              
+                                                                                                                                                                                                                                              
+        if proj_share_weight:                                                                                                                                                                                                                 
+            # Share the weight matrix between tgt word embedding/projection                                                                                                                                                                   
+            assert d_model == d_word_vec                                                                                                                                                                                                      
+            self.tgt_word_proj.weight = self.decoder.tgt_word_emb.weight                                                                                                                                                                      
+                                                                                                                                                                                                                                              
+        if embs_share_weight:                                                                                                                                                                                                                 
+            # Share the weight matrix between src/tgt word embeddings                                                                                                                                                                         
+            # assume the src/tgt word vec size are the same                                                                                                                                                                                   
+            assert n_src_vocab == n_tgt_vocab, \                                                                                                                                                                                              
+            "To share word embedding table, the vocabulary size of src/tgt shall be the same."                                                                                                                                                
+            self.encoder.src_word_emb.weight = self.decoder.tgt_word_emb.weight                                                                                                                                                               
+                                                                                                                                                                                                                                              
+    def get_trainable_parameters(self):                                                                                                                                                                                                       
+        ''' Avoid updating the position encoding '''                                                                                                                                                                                          
+        enc_freezed_param_ids = set(map(id, self.encoder.position_enc.parameters()))                                                                                                                                                          
+        dec_freezed_param_ids = set(map(id, self.decoder.position_enc.parameters()))                                                                                                                                                          
+        dec_freezed_param_ids_cls = set(map(id, self.decoder_cls.position_enc.parameters()))                                                                                                                                                  
+                                                                                                                                                                                                                                              
+        freezed_param_ids = enc_freezed_param_ids | dec_freezed_param_ids | dec_freezed_param_ids_cls                                                                                                                                         
+        return (p for p in self.parameters() if id(p) not in freezed_param_ids)                                                                                                                                                               
+                                                                                                                                                                                                                                              
+    def forward(self, src, tgt, cls):                                                                                                                                                                                                         
+        src_seq, src_pos = src                                                                                                                                                                                                                
+        tgt_seq, tgt_pos = tgt                                                                                                                                                                                                                
+        cls_seq, cls_pos = cls
+	                                                                                                                                                                                                                                      
+        #TODO: I don't understand what this is doing (only will modify the lenght of one sentence, the largest one)                                                                                                                           
+        tgt_seq = tgt_seq[:, :-1]                                                                                                                                                                                                             
+        tgt_pos = tgt_pos[:, :-1]                                                                                                                                                                                                             
+                                                                                                                                                                                                                                              
+        cls_seq = cls_seq[:, :-1]                                                                                                                                                                                                             
+        cls_pos = cls_pos[:, :-1]                                                                                                                                                                                                             
+                                                                                                                                                                                                                                              
+        enc_output, *_ = self.encoder(src_seq, src_pos)                                                                                                                                                                                       
+                                                                                                                                                                                                                                              
+        dec_output, *_ = self.decoder(tgt_seq, tgt_pos, src_seq, enc_output)                                                                                                                                                                  
+        seq_logit = self.tgt_word_proj(dec_output)                                                                                                                                                                                            
+                                                                                                                                                                                                                                              
+        dec_cls_output, *_ = self.decoder_cls(cls_seq, cls_pos, src_seq, enc_output)                                                                                                                                                          
+        seq_cls_logit = self.tgt_word_proj(dec_cls_output)                                                                                                                                                                                    
+                                                                                                                                                                                                                                              
+        return seq_logit.view(-1, seq_logit.size(2)), seq_cls_logit.view(-1, seq_cls_logit.size(2))
+    
+    #+END_SRC
+
+*** Improvements
+    
+   #+BEGIN_SRC python
+   
+   #+END_SRC
+ 
+   
+** Results
+
+
+   
