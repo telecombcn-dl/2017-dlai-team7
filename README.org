@@ -127,7 +127,7 @@
 
       import csv
 
-      db_file = '/home/team7/Data/project/en_train.csv'                    # Here you should put the path to the file you want to change
+      db_file = 'data/kaggle_norm_competition/en_train.csv'                    # Here you should put the path to the file you want to change
 
       outputFile = open ("outputTrainDST", 'a')
       with open (db_file, 'r') as f:
@@ -187,6 +187,10 @@
    #+END_SRC
     
 ** The code
+
+   After working with the classic Transformer we decided to try some changes in order to classify the words (an info that we already have in the database) and try if this info could help us.
+
+   In order to do that, our idea is to add a new Transformer decoder that is trained with the word class.
 
 *** Word classification trial
 
