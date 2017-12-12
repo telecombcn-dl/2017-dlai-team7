@@ -2,7 +2,13 @@
 
 * Text Normalization Challenge - English Language [Kaggle]
 
-  [[file:text_norm_challenge.ipynb][Jupyter Notebook]]
+** Jupyter Notebook
+
+   #+BEGIN_SRC bash
+
+   jupyter notebook text_norm_challenge.ipynb
+   
+   #+END_SRC
 
 ** Data analysis with pandas
 
@@ -257,14 +263,59 @@
     
     #+END_SRC
 
-*** Improvements
+    And the loss should be now
+
+    #+BEGIN_SRC python
+
+    def train_epoch(model, training_data, crit, optimizer):                                                                                                                                                                                       
+    ''' Epoch operation in training phase'''                                                                                                                                                                                                  
+                                                                                                                                                                                                                                              
+    model.train()                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                              
+    total_loss = 0                                                                                                                                                                                                                            
+    n_total_words = 0                                                                                                                                                                                                                         
+    n_total_correct = 0                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                              
+    for batch in tqdm(                                                                                                                                                                                                                        
+            training_data, mininterval=2,                                                                                                                                                                                                     
+            desc='  - (Training)   ', leave=False):                                                                                                                                                                                           
+                                                                                                                                                                                                                                              
+        # prepare data                                                                                                                                                                                                                        
+        src, tgt, cls = batch                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                              
+        gold = tgt[0][:, 1:]                                                                                                                                                                                                                  
+        class_gold = cls[0][:,1:]                                                                                                                                                                                                             
+                                                                                                                                                                                                                                              
+        # forward                                                                                                                                                                                                                             
+        optimizer.zero_grad()                                                                                                                                                                                                                 
+        pred = model(src, tgt)                                                                                                                                                                                                                
+                                                                                                                                                                                                                                              
+        # backward                                                                                                                                                                                                                            
+        loss, n_correct = get_performance(crit, pred, gold)                                                                                                                                                                                   
+        loss.backward()                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                              
+        # update parameters                                                                                                                                                                                                                   
+        optimizer.step()                                                                                                                                                                                                                      
+        optimizer.update_learning_rate()                                                                                                                                                                                                      
+                                                                                                                                                                                                                                              
+        # note keeping                                                                                                                                                                                                                        
+        n_words = gold.data.ne(Constants.PAD).sum()                                                                                                                                                                                           
+        n_total_words += n_words                                                                                                                                                                                                              
+        n_total_correct += n_correct                                                                                                                                                                                                          
+        total_loss += loss.data[0]                                                                                                                                                                                                            
+                                                                                                                                                                                                                                              
+    return total_loss/n_total_words, n_total_correct/n_total_words
     
-   #+BEGIN_SRC python
+    #+END_SRC
+    
+
+# *** Improvements
+    
+#    #+BEGIN_SRC python
    
-   #+END_SRC
+#    #+END_SRC
  
    
 ** Results
-
 
    
