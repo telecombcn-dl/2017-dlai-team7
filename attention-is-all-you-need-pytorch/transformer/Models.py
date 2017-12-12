@@ -14,7 +14,7 @@ def position_encoding_init(n_position, d_pos_vec):
     # keep dim 0 for padding token position encoding zero vector
     position_enc = np.array([
         [pos / np.power(10000, 2 * (j // 2) / d_pos_vec) for j in range(d_pos_vec)]
-        if pos != 0 else np.zeros(d_pos_vec) for pos in range(n_position)])
+    if pos != 0 else np.zeros(d_pos_vec) for pos in range(n_position)])
 
     position_enc[1:, 0::2] = np.sin(position_enc[1:, 0::2]) # dim 2i
     position_enc[1:, 1::2] = np.cos(position_enc[1:, 1::2]) # dim 2i+1
@@ -186,6 +186,66 @@ class Transformer(nn.Module):
         src_seq, src_pos = src
         tgt_seq, tgt_pos = tgt
 
+        #TODO: I don't understand what this is doing (only will modify the lenght of one sentence, the largest one)
+        tgt_seq = tgt_seq[:, :-1]
+        tgt_pos = tgt_pos[:, :-1]
+
+        enc_output, *_ = self.encoder(src_seq, src_pos)
+        dec_output, *_ = self.decoder(tgt_seq, tgt_pos, src_seq, enc_output)
+        seq_logit = self.tgt_word_proj(dec_output)
+
+        return seq_logit.view(-1, seq_logit.size(2))
+
+
+
+class MyTransformer(nn.Module):
+    ''' A sequence to sequence model with attention mechanism. '''
+
+    def __init__(
+            self, n_src_vocab, n_tgt_vocab, n_cls_vocab, n_max_seq, n_layers=6, n_head=8,
+            d_word_vec=512, d_model=512, d_inner_hid=1024, d_k=64, d_v=64,
+            dropout=0.1, proj_share_weight=True, embs_share_weight=True):
+
+        super(Transformer, self).__init__()
+        self.encoder = Encoder(
+            n_src_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,
+            d_word_vec=d_word_vec, d_model=d_model,
+            d_inner_hid=d_inner_hid, dropout=dropout)
+        self.decoder = Decoder(
+            n_tgt_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,
+            d_word_vec=d_word_vec, d_model=d_model,
+            d_inner_hid=d_inner_hid, dropout=dropout)
+        self.tgt_word_proj = Linear(d_model, n_tgt_vocab, bias=False)
+        self.dropout = nn.Dropout(dropout)
+
+        assert d_model == d_word_vec, \
+        'To facilitate the residual connections, \
+         the dimensions of all module output shall be the same.'
+
+        if proj_share_weight:
+            # Share the weight matrix between tgt word embedding/projection
+            assert d_model == d_word_vec
+            self.tgt_word_proj.weight = self.decoder.tgt_word_emb.weight
+
+        if embs_share_weight:
+            # Share the weight matrix between src/tgt word embeddings
+            # assume the src/tgt word vec size are the same
+            assert n_src_vocab == n_tgt_vocab, \
+            "To share word embedding table, the vocabulary size of src/tgt shall be the same."
+            self.encoder.src_word_emb.weight = self.decoder.tgt_word_emb.weight
+
+    def get_trainable_parameters(self):
+        ''' Avoid updating the position encoding '''
+        enc_freezed_param_ids = set(map(id, self.encoder.position_enc.parameters()))
+        dec_freezed_param_ids = set(map(id, self.decoder.position_enc.parameters()))
+        freezed_param_ids = enc_freezed_param_ids | dec_freezed_param_ids
+        return (p for p in self.parameters() if id(p) not in freezed_param_ids)
+
+    def forward(self, src, tgt):
+        src_seq, src_pos = src
+        tgt_seq, tgt_pos = tgt
+
+        #TODO: I don't understand what this is doing (only will modify the lenght of one sentence, the largest one)
         tgt_seq = tgt_seq[:, :-1]
         tgt_pos = tgt_pos[:, :-1]
 

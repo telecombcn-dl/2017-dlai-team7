@@ -49,8 +49,10 @@ def train_epoch(model, training_data, crit, optimizer):
             desc='  - (Training)   ', leave=False):
 
         # prepare data
-        src, tgt = batch
+        src, tgt, cls = batch
+
         gold = tgt[0][:, 1:]
+        class_gold = cls[0][:,1:]
 
         # forward
         optimizer.zero_grad()
@@ -86,7 +88,7 @@ def eval_epoch(model, validation_data, crit):
             desc='  - (Validation) ', leave=False):
 
         # prepare data
-        src, tgt = batch
+        src, tgt, cls = batch
         gold = tgt[0][:, 1:]
 
         # forward
@@ -169,8 +171,8 @@ def main():
 
     parser.add_argument('-data', required=True)
 
-    parser.add_argument('-epoch', type=int, default=10)
-    parser.add_argument('-batch_size', type=int, default=64)
+    parser.add_argument('-epoch', type=int, default=50)
+    parser.add_argument('-batch_size', type=int, default=32)
 
     #parser.add_argument('-d_word_vec', type=int, default=512)
     parser.add_argument('-d_model', type=int, default=512)
@@ -200,24 +202,37 @@ def main():
     data = torch.load(opt.data)
     opt.max_token_seq_len = data['settings'].max_token_seq_len
 
+
     #========= Preparing DataLoader =========#
     training_data = DataLoader(
         data['dict']['src'],
         data['dict']['tgt'],
+        data['dict']['cls'],
         src_insts=data['train']['src'],
-        tgt_insts=data['train']['tgt'],
+        tgt_insts=data['train']['cls'],
+        cls_insts=data['train']['cls'],
         batch_size=opt.batch_size,
         cuda=opt.cuda)
 
     validation_data = DataLoader(
         data['dict']['src'],
         data['dict']['tgt'],
-        src_insts=data['valid']['src'],
-        tgt_insts=data['valid']['tgt'],
+        data['dict']['cls'],
+        src_insts=data['train']['src'],
+        tgt_insts=data['train']['cls'],
+        cls_insts=data['train']['cls'],
         batch_size=opt.batch_size,
-        shuffle=False,
-        test=True,
         cuda=opt.cuda)
+
+    # validation_data = DataLoader(
+    #     data['dict']['src'],
+    #     data['dict']['tgt'],
+    #     src_insts=data['valid']['src'],
+    #     tgt_insts=data['valid']['tgt'],
+    #     batch_size=opt.batch_size,
+    #     shuffle=False,
+    #     test=True,
+    #     cuda=opt.cuda)
 
     opt.src_vocab_size = training_data.src_vocab_size
     opt.tgt_vocab_size = training_data.tgt_vocab_size

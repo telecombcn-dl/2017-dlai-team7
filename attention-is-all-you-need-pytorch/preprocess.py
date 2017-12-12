@@ -8,11 +8,13 @@ def read_instances_from_file(inst_file, max_sent_len, keep_case):
 
     word_insts = []
     trimmed_sent_count = 0
+    counter = 0
     with open(inst_file) as f:
         for sent in f:
             if not keep_case:
                 sent = sent.lower()
             words = sent.split()
+
             if len(words) > max_sent_len:
                 trimmed_sent_count += 1
             word_inst = words[:max_sent_len]
@@ -73,6 +75,7 @@ def main():
     parser.add_argument('-train_tgt', required=True)
     parser.add_argument('-valid_src', required=True)
     parser.add_argument('-valid_tgt', required=True)
+    parser.add_argument('-classes_tgt', required=True)
     parser.add_argument('-save_data', required=True)
     parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=50)
     parser.add_argument('-min_word_count', type=int, default=5)
@@ -88,6 +91,9 @@ def main():
         opt.train_src, opt.max_word_seq_len, opt.keep_case)
     train_tgt_word_insts = read_instances_from_file(
         opt.train_tgt, opt.max_word_seq_len, opt.keep_case)
+    class_word_insts = read_instances_from_file(
+        opt.classes_tgt, opt.max_word_seq_len, opt.keep_case)
+
 
     if len(train_src_word_insts) != len(train_tgt_word_insts):
         print('[Warning] The training instance count is not equal.')
@@ -96,14 +102,17 @@ def main():
         train_tgt_word_insts = train_tgt_word_insts[:min_inst_count]
 
     #- Remove empty instances
-    train_src_word_insts, train_tgt_word_insts = list(zip(*[
-        (s, t) for s, t in zip(train_src_word_insts, train_tgt_word_insts) if s and t]))
+    train_src_word_insts, train_tgt_word_insts, class_word_insts = list(zip(*[
+        (s, t, c) for s, t, c in zip(train_src_word_insts, train_tgt_word_insts, class_word_insts) if s and t and c]))
+
 
     # Validation set
     valid_src_word_insts = read_instances_from_file(
         opt.valid_src, opt.max_word_seq_len, opt.keep_case)
     valid_tgt_word_insts = read_instances_from_file(
         opt.valid_tgt, opt.max_word_seq_len, opt.keep_case)
+    valid_class_word_insts = read_instances_from_file(
+        opt.classes_tgt, opt.max_word_seq_len, opt.keep_case)
 
     if len(valid_src_word_insts) != len(valid_tgt_word_insts):
         print('[Warning] The validation instance count is not equal.')
@@ -112,8 +121,8 @@ def main():
         valid_tgt_word_insts = valid_tgt_word_insts[:min_inst_count]
 
     #- Remove empty instances
-    valid_src_word_insts, valid_tgt_word_insts = list(zip(*[
-        (s, t) for s, t in zip(valid_src_word_insts, valid_tgt_word_insts) if s and t]))
+    valid_src_word_insts, valid_tgt_word_insts, valid_class_word_insts = list(zip(*[
+        (s, t, c) for s, t, c in zip(valid_src_word_insts, valid_tgt_word_insts, valid_class_word_insts) if s and t and c]))
 
     # Build vocabulary
     if opt.vocab:
@@ -134,11 +143,15 @@ def main():
             src_word2idx = build_vocab_idx(train_src_word_insts, opt.min_word_count)
             print('[Info] Build vocabulary for target.')
             tgt_word2idx = build_vocab_idx(train_tgt_word_insts, opt.min_word_count)
+            print('[Info] Build vocabulary for class.')
+            class_word2idx = build_vocab_idx(class_word_insts, 0)
 
     # word to index
     print('[Info] Convert source word instances into sequences of word index.')
     train_src_insts = convert_instance_to_idx_seq(train_src_word_insts, src_word2idx)
     valid_src_insts = convert_instance_to_idx_seq(valid_src_word_insts, src_word2idx)
+
+    class_insts = convert_instance_to_idx_seq(class_word_insts, class_word2idx)
 
     print('[Info] Convert target word instances into sequences of word index.')
     train_tgt_insts = convert_instance_to_idx_seq(train_tgt_word_insts, tgt_word2idx)
@@ -148,10 +161,12 @@ def main():
         'settings': opt,
         'dict': {
             'src': src_word2idx,
-            'tgt': tgt_word2idx},
+            'tgt': tgt_word2idx,
+            'cls': class_word2idx},
         'train': {
             'src': train_src_insts,
-            'tgt': train_tgt_insts},
+            'tgt': train_tgt_insts,
+            'cls': class_insts},
         'valid': {
             'src': valid_src_insts,
             'tgt': valid_tgt_insts}}
