@@ -2,6 +2,10 @@
 
 * Text Normalization Challenge - English Language [Kaggle]
 
+** Project presentation
+
+   [[https://drive.google.com/open?id=1XvsLropEW1TX9BlitafjH7bBYsBF6O3spm7-Bz0G9XQ]]
+
 ** Jupyter Notebook
 
    #+BEGIN_SRC bash
