@@ -206,7 +206,7 @@ class MyTransformer(nn.Module):
             d_word_vec=512, d_model=512, d_inner_hid=1024, d_k=64, d_v=64,
             dropout=0.1, proj_share_weight=True, embs_share_weight=True):
 
-        super(Transformer, self).__init__()
+        super(MyTransformer, self).__init__()
         self.encoder = Encoder(
             n_src_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,
             d_word_vec=d_word_vec, d_model=d_model,
@@ -217,6 +217,12 @@ class MyTransformer(nn.Module):
             d_inner_hid=d_inner_hid, dropout=dropout)
         self.tgt_word_proj = Linear(d_model, n_tgt_vocab, bias=False)
         self.dropout = nn.Dropout(dropout)
+
+        self.decoder_cls = Decoder(
+            n_cls_vocab, n_max_seq, n_layers=n_layers, n_head=n_head,
+            d_word_vec=d_word_vec, d_model=d_model,
+            d_inner_hid=d_inner_hid, dropout=dropout)
+        self.cls_word_proj = Linear(d_model, n_cls_vocab, bias=False)
 
         assert d_model == d_word_vec, \
         'To facilitate the residual connections, \
@@ -238,19 +244,29 @@ class MyTransformer(nn.Module):
         ''' Avoid updating the position encoding '''
         enc_freezed_param_ids = set(map(id, self.encoder.position_enc.parameters()))
         dec_freezed_param_ids = set(map(id, self.decoder.position_enc.parameters()))
-        freezed_param_ids = enc_freezed_param_ids | dec_freezed_param_ids
+        dec_freezed_param_ids_cls = set(map(id, self.decoder_cls.position_enc.parameters()))
+
+        freezed_param_ids = enc_freezed_param_ids | dec_freezed_param_ids | dec_freezed_param_ids_cls
         return (p for p in self.parameters() if id(p) not in freezed_param_ids)
 
-    def forward(self, src, tgt):
+    def forward(self, src, tgt, cls):
         src_seq, src_pos = src
         tgt_seq, tgt_pos = tgt
+        cls_seq, cls_pos = cls
 
         #TODO: I don't understand what this is doing (only will modify the lenght of one sentence, the largest one)
         tgt_seq = tgt_seq[:, :-1]
         tgt_pos = tgt_pos[:, :-1]
 
+        cls_seq = cls_seq[:, :-1]
+        cls_pos = cls_pos[:, :-1]
+
         enc_output, *_ = self.encoder(src_seq, src_pos)
+
         dec_output, *_ = self.decoder(tgt_seq, tgt_pos, src_seq, enc_output)
         seq_logit = self.tgt_word_proj(dec_output)
 
-        return seq_logit.view(-1, seq_logit.size(2))
+        dec_cls_output, *_ = self.decoder_cls(cls_seq, cls_pos, src_seq, enc_output)
+        seq_cls_logit = self.tgt_word_proj(dec_cls_output)
+
+        return seq_logit.view(-1, seq_logit.size(2)), seq_cls_logit.view(-1, seq_cls_logit.size(2))

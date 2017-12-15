@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import transformer.Constants as Constants
-from transformer.Models import Transformer
+from transformer.Models import Transformer, MyTransformer
 from transformer.Optim import ScheduledOptim
 from DataLoader import DataLoader
 
@@ -56,10 +56,14 @@ def train_epoch(model, training_data, crit, optimizer):
 
         # forward
         optimizer.zero_grad()
-        pred = model(src, tgt)
+        pred, pred_cls = model(src, tgt, cls)
 
         # backward
-        loss, n_correct = get_performance(crit, pred, gold)
+        loss_tgt, n_correct = get_performance(crit, pred, gold)
+        loss_cls, _ = get_performance(crit, pred_cls, class_gold)
+
+        loss = 0.5*loss_tgt + 0.5*loss_cls
+        #loss = loss_tgt
         loss.backward()
 
         # update parameters
@@ -89,11 +93,18 @@ def eval_epoch(model, validation_data, crit):
 
         # prepare data
         src, tgt, cls = batch
+
         gold = tgt[0][:, 1:]
+        class_gold = cls[0][:, 1:]
 
         # forward
-        pred = model(src, tgt)
-        loss, n_correct = get_performance(crit, pred, gold)
+        pred, pred_cls = model(src, tgt, cls)
+
+        loss_tgt, n_correct = get_performance(crit, pred, gold)
+        loss_cls, _ = get_performance(crit, pred_cls, class_gold)
+
+        loss = 0.5*loss_tgt + 0.5*loss_cls
+        #loss = loss_tgt
 
         # note keeping
         n_words = gold.data.ne(Constants.PAD).sum()
@@ -209,7 +220,7 @@ def main():
         data['dict']['tgt'],
         data['dict']['cls'],
         src_insts=data['train']['src'],
-        tgt_insts=data['train']['cls'],
+        tgt_insts=data['train']['tgt'],
         cls_insts=data['train']['cls'],
         batch_size=opt.batch_size,
         cuda=opt.cuda)
@@ -218,11 +229,14 @@ def main():
         data['dict']['src'],
         data['dict']['tgt'],
         data['dict']['cls'],
-        src_insts=data['train']['src'],
-        tgt_insts=data['train']['cls'],
+        src_insts=data['valid']['src'],
+        tgt_insts=data['valid']['tgt'],
         cls_insts=data['train']['cls'],
         batch_size=opt.batch_size,
         cuda=opt.cuda)
+
+    print (len (data['train']['src']))
+    print (len (data['valid']['src']))
 
     # validation_data = DataLoader(
     #     data['dict']['src'],
@@ -236,6 +250,8 @@ def main():
 
     opt.src_vocab_size = training_data.src_vocab_size
     opt.tgt_vocab_size = training_data.tgt_vocab_size
+    opt.cls_vocab_size = training_data.cls_vocab_size
+
 
     #========= Preparing Model =========#
     if opt.embs_share_weight and training_data.src_word2idx != training_data.tgt_word2idx:
@@ -244,9 +260,10 @@ def main():
 
     print(opt)
 
-    transformer = Transformer(
+    transformer = MyTransformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,
+        opt.cls_vocab_size,
         opt.max_token_seq_len,
         proj_share_weight=opt.proj_share_weight,
         embs_share_weight=opt.embs_share_weight,

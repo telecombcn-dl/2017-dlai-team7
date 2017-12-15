@@ -16,9 +16,9 @@ def plot_metric(path, col):
     plt.plot(content[:,col][:-1])
 
 
-plot_metric('./logNormal_tgt.txt.train.log', 3)
-plot_metric('./logNormal_tgt.txt.valid.log', 3)
+plot_metric('../attention_original/logNormal_tgt.txt.valid.log', 3)
+plot_metric('./logNew.txt.valid.log', 2)
 
-plt.legend(['TrainAcc', 'ValAcc'])
+plt.legend(['ValidAccOrig', 'ValidAccNew'])
 
 plt.savefig ('plt.png')
