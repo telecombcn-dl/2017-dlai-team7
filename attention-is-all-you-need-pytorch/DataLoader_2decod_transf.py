@@ -9,8 +9,8 @@ class DataLoader(object):
     ''' For data iteration '''
 
     def __init__(
-            self, src_word2idx, tgt_word2idx,
-            src_insts=None, tgt_insts=None,
+            self, src_word2idx, tgt_word2idx, cls_word2idx,
+            src_insts=None, tgt_insts=None, cls_insts = None,
             cuda=True, batch_size=64, shuffle=True, test=False):
 
         assert src_insts
@@ -25,17 +25,25 @@ class DataLoader(object):
 
         self._batch_size = batch_size
 
+        if len (tgt_insts) != len (cls_insts):
+            cls_insts = cls_insts[:len(tgt_insts)]
+
         self._src_insts = src_insts
         self._tgt_insts = tgt_insts
+        self._cls_insts = cls_insts
 
         src_idx2word = {idx:word for word, idx in src_word2idx.items()}
         tgt_idx2word = {idx:word for word, idx in tgt_word2idx.items()}
+        cls_idx2word = {idx:word for word, idx in cls_word2idx.items()}
 
         self._src_word2idx = src_word2idx
         self._src_idx2word = src_idx2word
 
         self._tgt_word2idx = tgt_word2idx
         self._tgt_idx2word = tgt_idx2word
+
+        self._cls_word2idx = cls_word2idx
+        self._cls_idx2word = cls_idx2word
 
         self._iter_count = 0
 
@@ -60,6 +68,11 @@ class DataLoader(object):
         return len(self._tgt_word2idx)
 
     @property
+    def cls_vocab_size(self):
+        ''' Property for vocab size '''
+        return len(self._cls_word2idx)
+
+    @property
     def src_word2idx(self):
         ''' Property for word dictionary '''
         return self._src_word2idx
@@ -82,9 +95,9 @@ class DataLoader(object):
     def shuffle(self):
         ''' Shuffle data for a brand new start '''
         if self._tgt_insts:
-            paired_insts = list(zip(self._src_insts, self._tgt_insts))
+            paired_insts = list(zip(self._src_insts, self._tgt_insts, self._cls_insts))
             random.shuffle(paired_insts)
-            self._src_insts, self._tgt_insts = zip(*paired_insts)
+            self._src_insts, self._tgt_insts, self._cls_insts = zip(*paired_insts)
         else:
             random.shuffle(self._src_insts)
 
@@ -140,7 +153,11 @@ class DataLoader(object):
             else:
                 tgt_insts = self._tgt_insts[start_idx:end_idx]
                 tgt_data, tgt_pos = pad_to_longest(tgt_insts)
-                return (src_data, src_pos), (tgt_data, tgt_pos)
+
+                cls_insts = self._cls_insts[start_idx:end_idx]
+                cls_data, cls_pos = pad_to_longest(cls_insts)
+
+                return (src_data, src_pos), (tgt_data, tgt_pos), (cls_data, cls_pos)
 
         else:
 
