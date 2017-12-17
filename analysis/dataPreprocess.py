@@ -82,7 +82,7 @@ def main (db_file,r_index):
         for line in linesTrain:
             print(line, file=f)
 
-    with open (db_file_out.replace("test","val"), 'a') as f:
+    with open (db_file_out.replace("train","val"), 'a') as f:
         for line in linesTest:
             print(line, file=f)
 
