@@ -18,7 +18,7 @@ def main (db_file,r_index):
     else:
         print("Error! The extraction part should or 3 or 4")
         
-    outputFile = open ("outputTrainDST", 'a')
+    outputFile = open (db_file_out, 'a')
     with open (db_file, 'r') as f:
         reader = csv.reader(f)
 
