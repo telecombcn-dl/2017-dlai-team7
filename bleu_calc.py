@@ -4,7 +4,7 @@ import os
 import math
 import operator
 import json
-
+import functools
 
 
 def fetch_data(cand, ref):
@@ -104,7 +104,7 @@ def brevity_penalty(c, r):
 
 
 def geometric_mean(precisions):
-    return (reduce(operator.mul, precisions)) ** (1.0 / len(precisions))
+    return (functools.reduce(operator.mul, precisions)) ** (1.0 / len(precisions))
 
 
 def BLEU(candidate, references):
@@ -118,7 +118,7 @@ def BLEU(candidate, references):
 if __name__ == "__main__":
     candidate, references = fetch_data(sys.argv[1], sys.argv[2])
     bleu = BLEU(candidate, references)
-    print bleu
+    print (bleu)
     out = open('bleu_out.txt', 'w')
     out.write(str(bleu))
     out.close()
