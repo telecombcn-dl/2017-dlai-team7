@@ -47,7 +47,7 @@ def main (db_file,r_index):
         print (counter)
 
 
-    fTrain =  open (fb_file_out, 'r')
+    fTrain =  open (db_file_out, 'r')
 
 
 
