@@ -16,6 +16,15 @@
 
 ** Data analysis with pandas
 
+   Build vocabulary for source.
+   Original Vocabulary size = 340590
+   Trimmed vocabulary size = 47678, each with minimum occurrence = 5
+   Ignored word count = 292914
+   Build vocabulary for target.
+   Original Vocabulary size = 289156
+   Trimmed vocabulary size = 42803, each with minimum occurrence = 5
+   Ignored word count = 246355
+
    # #+BEGIN_SRC python
 
    #   import pandas as pd
