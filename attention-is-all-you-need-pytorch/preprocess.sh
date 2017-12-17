@@ -1,1 +1,9 @@
-python preprocess.py -train_src data/kaggle_norm_competition/linesTrainSRC -train_tgt data/kaggle_norm_competition/linesTrainDST -valid_src data/kaggle_norm_competition/linesValSRC -valid_tgt data/kaggle_norm_competition/linesValDST -save_data data/kaggle_norm_competition/train_kaggle2transformer.atok.low.pt
+
+python ../analysis/dataPreprocess.py ../data/en_train.csv 3
+python ../analysis/dataPreprocess.py ../data/en_train.csv 4
+python ../analysis/dataPreprocess.py ../data/en_test.csv 2
+
+# for l in en de; do for f in data/kaggle_norm_competition/*.$l; do if [[ "$f" != *"test"* ]]; then sed -i "$ d" $f; fi;  done; done
+# for l in en de; do for f in data/kaggle_norm_competition/*.$l; do perl tokenizer.perl -a -no-escape -l $l -q  < $f > $f.atok; done; done
+
+python preprocess.py -train_src ../data/kaggle_norm_competition/en_train_SRC.txt -train_tgt ../data/kaggle_norm_competition/en_train_DST.txt -valid_src ../data/kaggle_norm_competition/en_val_SRC.txt -valid_tgt ../data/kaggle_norm_competition/en_val_DST.txt -save_data data/kaggle_norm_competition/train_kaggle2transformer.atok.low.pt
