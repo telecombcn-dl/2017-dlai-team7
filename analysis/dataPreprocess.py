@@ -34,7 +34,7 @@ def main (db_file,r_index):
             else:
                 print (phraseString, file = outputFile)
                 phraseString = ""
-                phraseString += row[4] + ' '
+                phraseString += row[r_index] + ' '
 
                 counter += 1
                 if counter == 20000:
