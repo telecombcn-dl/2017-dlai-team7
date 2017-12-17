@@ -6,8 +6,6 @@ import operator
 import json
 import functools
 
-
-
 def fetch_data(cand, ref):
     """ Store each reference and candidate sentences as a list """
     references = []
