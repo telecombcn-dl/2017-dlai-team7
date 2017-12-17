@@ -10,13 +10,14 @@ def main (db_file,r_index):
 
     import csv
 
-    if r_index == 3:
-
+    if r_index == 2:
+        db_file_out = db_file.replace(".csv",".txt")
+    elif r_index == 3:
         db_file_out = db_file.replace(".csv","_SRC.txt")
     elif r_index == 4:
         db_file_out = db_file.replace(".csv","_DST.txt")
     else:
-        print("Error! The extraction part should or 3 or 4")
+        print("Error! The extraction part should either 2, 3 or 4")
         
     outputFile = open (db_file_out, 'a')
     with open (db_file, 'r') as f:
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Estimate the errors between two midis')
 
     parser.add_argument('database_file', help='the path of the database file to convert in a list of sentences')
-    parser.add_argument('extraction_part', type=int, help='the word you need the SRC(3) or the DST(4)')
+    parser.add_argument('extraction_part', type=int, help='the word you need, the SRC(2/3) or the DST(4)')
 
     args = parser.parse_args()
     
