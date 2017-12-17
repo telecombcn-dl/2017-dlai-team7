@@ -78,28 +78,12 @@ def main (db_file,r_index):
     print ("Len of test files")
     print (len (linesTest))
 
-    with open ('./linesTrainSRC', 'a') as f:
-        for line in linesTrainSRC:
+    with open (db_file_out, 'a') as f:
+        for line in linesTrain:
             print(line, file=f)
 
-    with open ('./linesTrainDST', 'a') as f:
-        for line in linesTrainDST:
-            print(line, file=f)
-
-    with open ('./linesTrainClass', 'a') as f:
-        for line in linesTrainClass:
-            print(line, file=f)
-
-    with open ('./linesValSRC', 'a') as f:
-        for line in linesTestSRC:
-            print(line, file=f)
-
-    with open ('./linesValDST', 'a') as f:
-        for line in linesTestDST:
-            print(line, file=f)
-
-    with open ('./linesValClass', 'a') as f:
-        for line in linesTestClass:
+    with open (db_file_out.replace("test","val"), 'a') as f:
+        for line in linesTest:
             print(line, file=f)
 
 
