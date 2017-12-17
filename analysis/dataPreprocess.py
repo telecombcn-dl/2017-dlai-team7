@@ -4,14 +4,14 @@ import time
 
 
 
-def main ():
+def main (db_file,):
     print ("Hello from data preprocess")
 
     import csv
 
-
+    db_file_out = db_file.replace(".csv","_"++".txt")
     outputFile = open ("outputTrainDST", 'a')
-    with open ('/home/team7/Data/project/en_train.csv', 'r') as f:
+    with open (db_file, 'r') as f:
         reader = csv.reader(f)
 
         counter = 0
@@ -37,4 +37,11 @@ def main ():
         print (counter)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Estimate the errors between two midis')
+
+    parser.add_argument('database_file', help='the path of the database file to convert in a list of sentences')
+    parser.add_argument('', help='')
+
+    args = parser.parse_args()
+    
     main ()
