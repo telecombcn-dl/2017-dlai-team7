@@ -20,7 +20,7 @@ def main (db_file,r_index):
     else:
         print("Error! The extraction part should either 2, 3 or 4")
         
-    outputFile = open (db_file_out, 'a')
+    outputFile = open (db_file_out, 'w')
     with open (db_file, 'r') as f:
         reader = csv.reader(f)
 
@@ -78,11 +78,11 @@ def main (db_file,r_index):
     print ("Len of test files")
     print (len (linesTest))
 
-    with open (db_file_out, 'a') as f:
+    with open (db_file_out, 'w') as f:
         for line in linesTrain:
             print(line, file=f)
 
-    with open (db_file_out.replace("train","val"), 'a') as f:
+    with open (db_file_out.replace("train","val"), 'w') as f:
         for line in linesTest:
             print(line, file=f)
 
