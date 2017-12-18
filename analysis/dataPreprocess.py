@@ -12,7 +12,10 @@ def main (db_file,r_index):
     import numpy as np
 
     if r_index == 2:
-        db_file_out = db_file.replace(".csv",".txt")
+        if "test" in db_file_out:
+            db_file_out = db_file.replace(".csv",".txt")
+        elif "train" in db_file_out:
+            db_file_out = db_file.replace(".csv","_CLASS.txt")
     elif r_index == 3:
         db_file_out = db_file.replace(".csv","_SRC.txt")
     elif r_index == 4:
